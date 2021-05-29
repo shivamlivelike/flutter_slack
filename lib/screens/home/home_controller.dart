@@ -28,10 +28,10 @@ class HomeController extends GetxController {
             faker.randomGenerator.element(pics),
             uDate,
             uDate)));
-    await Future.delayed(const Duration(seconds: 6));
     currentUser.value = faker.randomGenerator.element(users);
 
-    final chatRooms = List.generate(faker.randomGenerator.integer(50), (index) {
+    final chatRooms =
+        List.generate(faker.randomGenerator.integer(50, min: 10), (index) {
       final date = faker.date.dateTime();
       final type = faker.randomGenerator.element(ChatRoomType.values);
       final members = <SenderUser>[];
@@ -51,8 +51,17 @@ class HomeController extends GetxController {
     directMessageChatRoom.addAll(chatRooms
         .where((element) => element.chatRoomType == ChatRoomType.direct)
         .toList());
-    directMessageChatRoom.forEach((chatRoom) {
+    // directMessageChatRoom.forEach((chatRoom) {
+    //   Get.put(ChatController(chatRoom), tag: chatRoom.id);
+    // });
+  }
+
+  void changeChatRoom(ChatRoom chatRoom) {
+    try {
+      Get.find<ChatController>(tag: chatRoom.id);
+    } catch (e) {
       Get.put(ChatController(chatRoom), tag: chatRoom.id);
-    });
+    }
+    selectedChatRoom.value = chatRoom;
   }
 }

@@ -5,7 +5,6 @@ import 'package:flutter_slack/screens/home/home_controller.dart';
 import 'package:flutter_slack/utils/app_widgets.dart';
 import 'package:flutter_slack/utils/colors.dart';
 import 'package:get/get.dart';
-import 'package:shimmer/shimmer.dart';
 
 class HomePage extends GetResponsiveView<HomeController> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -89,11 +88,7 @@ class AppAccountBox extends StatelessWidget {
                   Expanded(
                     child: user != null
                         ? Text("${user!.name}", textAlign: TextAlign.center)
-                        : Shimmer.fromColors(
-                            baseColor: Colors.grey[300]!,
-                            highlightColor: Colors.grey[100]!,
-                            child: SizedBox.shrink(),
-                          ),
+                        : SizedBox.shrink(),
                   ),
                   Icon(Icons.arrow_drop_down_outlined)
                 ],
@@ -168,7 +163,7 @@ class AppDrawer extends StatelessWidget {
                             style: TextStyle(color: Colors.white),
                           ),
                           onTap: () {
-                            controller.selectedChatRoom.value = element;
+                            controller.changeChatRoom(element);
                           },
                         ))
                     .toList(),

@@ -69,6 +69,7 @@ class ChatPage extends GetResponsiveView<ChatController> {
           child: SmartRefresher(
             controller: controller.refreshController,
             child: ListView.separated(
+              controller: controller.scrollController,
               itemBuilder: (context, index) {
                 return ChatView(chat: controller.chats[index]);
               },
@@ -123,32 +124,38 @@ class ChatRoomMembersWithPicAndCount extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    int count = (chatRoom.members.length > 3 ? 3 : chatRoom.members.length);
     return Row(
       children: [
         SizedBox(
-          child: Stack(
-            children: List.generate(
-              chatRoom.members.length,
-              (index) => Positioned(
-                  child: UserPic(
-                    height: 28,
-                    width: 28,
-                    radius: 5,
-                    borderWidth: 2,
-                    borderColor: backgroundColor,
-                    url: chatRoom.members[index].pic,
-                  ),
-                  top: 0,
-                  left: index * 18),
+            child: Stack(
+              children: List.generate(
+                  count,
+                  (index) => Positioned(
+                      child: UserPic(
+                        height: 28,
+                        width: 28,
+                        radius: 5,
+                        borderWidth: 2,
+                        borderColor: backgroundColor,
+                        url: chatRoom.members[index].pic,
+                      ),
+                      top: 0,
+                      left: index * 18)),
             ),
+            width: 75,
+            height: 30),
+        Container(
+          height: 28,
+          width: 28,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.white),
+            borderRadius: BorderRadius.circular(5),
           ),
-          width: 80,
-          height: 30,
-        ),
-        Padding(
-          padding: EdgeInsets.only(left: 0, right: 15),
           child: Text(
             "${chatRoom.members.length}",
+            textAlign: TextAlign.center,
             style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
           ),
         )

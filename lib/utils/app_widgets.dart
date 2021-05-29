@@ -4,7 +4,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:shimmer/shimmer.dart';
 
 class AppTextField extends StatelessWidget {
   final TextEditingController? controller;
@@ -316,21 +315,17 @@ class UserPic extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Shimmer.fromColors(
-        child: Container(
-          width: width,
-          height: height,
-          decoration: BoxDecoration(
-            shape: boxShape,
-            borderRadius: BorderRadius.circular(radius),
-            border: Border.all(color: borderColor, width: borderWidth),
-            image: url != null
-                ? DecorationImage(fit: BoxFit.cover, image: NetworkImage(url!))
-                : null,
-          ),
-        ),
-        enabled: url == null,
-        baseColor: Colors.grey[300]!,
-        highlightColor: Colors.grey[100]!);
+    return Container(
+      width: width,
+      height: height,
+      decoration: BoxDecoration(
+        shape: boxShape,
+        borderRadius: BorderRadius.circular(radius),
+        border: Border.all(color: borderColor, width: borderWidth),
+        image: url != null
+            ? DecorationImage(fit: BoxFit.cover, image: NetworkImage(url!))
+            : null,
+      ),
+    );
   }
 }

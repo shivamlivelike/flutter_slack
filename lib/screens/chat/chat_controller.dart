@@ -1,4 +1,5 @@
 import 'package:faker/faker.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_slack/models/chat.dart';
 import 'package:flutter_slack/models/chatroom.dart';
 import 'package:get/get.dart';
@@ -8,6 +9,8 @@ class ChatController extends GetxController {
   final chatRoom = Rx<ChatRoom?>(null);
   final chats = <Chat>[].obs;
   final refreshController = RefreshController(initialRefresh: false);
+
+  final scrollController = ScrollController();
 
   ChatController(ChatRoom chatRoom) {
     this.chatRoom.value = chatRoom;
@@ -30,5 +33,13 @@ class ChatController extends GetxController {
           dateTime);
     })
           ..sort((c1, c2) => c1.updated.compareTo(c2.updated)));
+  }
+
+  @override
+  void onReady() {
+    super.onReady();
+    print("Ready> ${chatRoom.value?.title}");
+    scrollController.animateTo(scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
   }
 }
