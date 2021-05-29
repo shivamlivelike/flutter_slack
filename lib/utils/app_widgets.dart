@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:shimmer/shimmer.dart';
 
 class AppTextField extends StatelessWidget {
   final TextEditingController? controller;
@@ -300,6 +301,7 @@ class UserPic extends StatelessWidget {
   final BoxShape boxShape;
   final Color borderColor;
   final double borderWidth;
+  final String? url;
 
   const UserPic(
       {Key? key,
@@ -308,23 +310,27 @@ class UserPic extends StatelessWidget {
       this.radius = 5,
       this.boxShape = BoxShape.rectangle,
       this.borderColor = Colors.transparent,
-      this.borderWidth = 0})
+      this.borderWidth = 0,
+      required this.url})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: width,
-      height: height,
-      decoration: BoxDecoration(
-        shape: boxShape,
-        borderRadius: BorderRadius.circular(radius),
-        border: Border.all(color: borderColor, width: borderWidth),
-        image: DecorationImage(
-            fit: BoxFit.cover,
-            image: NetworkImage(
-                'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRd0AQjkrS6zdwv-Rp5AnjpI-nM5EbDfhgBOg&usqp=CAU')),
-      ),
-    );
+    return Shimmer.fromColors(
+        child: Container(
+          width: width,
+          height: height,
+          decoration: BoxDecoration(
+            shape: boxShape,
+            borderRadius: BorderRadius.circular(radius),
+            border: Border.all(color: borderColor, width: borderWidth),
+            image: url != null
+                ? DecorationImage(fit: BoxFit.cover, image: NetworkImage(url!))
+                : null,
+          ),
+        ),
+        enabled: url == null,
+        baseColor: Colors.grey[300]!,
+        highlightColor: Colors.grey[100]!);
   }
 }

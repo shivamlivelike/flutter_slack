@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_slack/models/slackuser.dart';
 import 'package:flutter_slack/screens/chat/chat_page.dart';
 import 'package:flutter_slack/screens/home/home_controller.dart';
 import 'package:flutter_slack/utils/app_widgets.dart';
 import 'package:flutter_slack/utils/colors.dart';
 import 'package:get/get.dart';
+import 'package:shimmer/shimmer.dart';
 
 class HomePage extends GetResponsiveView<HomeController> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -26,7 +28,10 @@ class HomePage extends GetResponsiveView<HomeController> {
               )
             : SizedBox.shrink(),
         title: Text("Dashboard"),
-        actions: [AppBarTextField(), AppAccountBox()],
+        actions: [
+          AppBarTextField(),
+          Obx(() => AppAccountBox(user: controller.currentUser.value))
+        ],
       ),
       body: Row(
         children: [
@@ -50,7 +55,9 @@ class HomePage extends GetResponsiveView<HomeController> {
 }
 
 class AppAccountBox extends StatelessWidget {
-  const AppAccountBox({Key? key}) : super(key: key);
+  final SlackUser? user;
+
+  const AppAccountBox({Key? key, required this.user}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -67,20 +74,26 @@ class AppAccountBox extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            child: UserPic(),
+            width: 50,
+            height: 50,
+            child: UserPic(url: user?.pic),
             alignment: Alignment.center,
           ),
           Expanded(
             child: TextButton(
               onPressed: () {},
-              style: TextButton.styleFrom(
-                primary: Colors.white,
-              ),
+              style: TextButton.styleFrom(primary: Colors.white),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   Expanded(
-                    child: Text("Name", textAlign: TextAlign.center),
+                    child: user != null
+                        ? Text("${user!.name}", textAlign: TextAlign.center)
+                        : Shimmer.fromColors(
+                            baseColor: Colors.grey[300]!,
+                            highlightColor: Colors.grey[100]!,
+                            child: SizedBox.shrink(),
+                          ),
                   ),
                   Icon(Icons.arrow_drop_down_outlined)
                 ],

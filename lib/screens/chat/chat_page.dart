@@ -2,6 +2,7 @@ import 'package:date_format/date_format.dart';
 import 'package:faker/faker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slack/models/chat.dart';
+import 'package:flutter_slack/models/chatroom.dart';
 import 'package:flutter_slack/screens/chat/chat_controller.dart';
 import 'package:flutter_slack/utils/app_extensions.dart';
 import 'package:flutter_slack/utils/app_widgets.dart';
@@ -51,7 +52,10 @@ class ChatPage extends GetResponsiveView<ChatController> {
               Expanded(
                   child: Row(
                 children: [
-                  ChatRoomMembersWithPicAndCount(),
+                  Obx(() => controller.chatRoom.value != null
+                      ? ChatRoomMembersWithPicAndCount(
+                          chatRoom: controller.chatRoom.value!)
+                      : SizedBox.shrink()),
                   IconButton(
                     onPressed: () {},
                     icon: Icon(Icons.person_add),
@@ -112,6 +116,11 @@ class ChatPage extends GetResponsiveView<ChatController> {
 }
 
 class ChatRoomMembersWithPicAndCount extends StatelessWidget {
+  final ChatRoom chatRoom;
+
+  const ChatRoomMembersWithPicAndCount({Key? key, required this.chatRoom})
+      : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -119,7 +128,7 @@ class ChatRoomMembersWithPicAndCount extends StatelessWidget {
         SizedBox(
           child: Stack(
             children: List.generate(
-              3,
+              chatRoom.members.length,
               (index) => Positioned(
                   child: UserPic(
                     height: 28,
@@ -127,6 +136,7 @@ class ChatRoomMembersWithPicAndCount extends StatelessWidget {
                     radius: 5,
                     borderWidth: 2,
                     borderColor: backgroundColor,
+                    url: chatRoom.members[index].pic,
                   ),
                   top: 0,
                   left: index * 18),
@@ -138,7 +148,7 @@ class ChatRoomMembersWithPicAndCount extends StatelessWidget {
         Padding(
           padding: EdgeInsets.only(left: 0, right: 15),
           child: Text(
-            "5",
+            "${chatRoom.members.length}",
             style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
           ),
         )
@@ -155,7 +165,7 @@ class ChatView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: UserPic(height: 35, width: 35),
+      leading: UserPic(height: 35, width: 35, url: chat.sender.pic),
       title: Row(
         children: [
           Text(

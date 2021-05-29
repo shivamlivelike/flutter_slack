@@ -8,12 +8,15 @@ class HomeController extends GetxController {
   final directMessageChatRoom = <ChatRoom>[].obs;
   final users = <SlackUser>[].obs;
   final selectedChatRoom = Rx<ChatRoom?>(null);
+  final currentUser = Rx<SlackUser?>(null);
 
   @override
-  void onInit() {
+  void onInit() async {
     super.onInit();
     final pics = List.generate(
-        60, (index) => "https://randomuser.me/api/portraits/women/$index.jpg");
+        50,
+        (index) =>
+            "https://randomuser.me/api/portraits/${faker.randomGenerator.boolean() ? 'women' : 'men'}/$index.jpg");
     final uDate = faker.date.dateTime();
     users.addAll(List.generate(
         faker.randomGenerator.integer(100, min: 30),
@@ -25,6 +28,8 @@ class HomeController extends GetxController {
             faker.randomGenerator.element(pics),
             uDate,
             uDate)));
+    await Future.delayed(const Duration(seconds: 6));
+    currentUser.value = faker.randomGenerator.element(users);
 
     final chatRooms = List.generate(faker.randomGenerator.integer(50), (index) {
       final date = faker.date.dateTime();
@@ -47,7 +52,7 @@ class HomeController extends GetxController {
         .where((element) => element.chatRoomType == ChatRoomType.direct)
         .toList());
     directMessageChatRoom.forEach((chatRoom) {
-      Get.put(ChatController(), tag: chatRoom.id);
+      Get.put(ChatController(chatRoom), tag: chatRoom.id);
     });
   }
 }
