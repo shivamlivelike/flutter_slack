@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slack/models/chat.dart';
 import 'package:flutter_slack/models/chatroom.dart';
 import 'package:flutter_slack/screens/chat/chat_controller.dart';
+import 'package:flutter_slack/screens/home/home_controller.dart';
 import 'package:flutter_slack/utils/app_extensions.dart';
 import 'package:flutter_slack/utils/app_widgets.dart';
 import 'package:flutter_slack/utils/colors.dart';
@@ -13,7 +14,7 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 class ChatPage extends GetResponsiveView<ChatController> {
   final String chatRoomId;
 
-  ChatPage(this.chatRoomId);
+  ChatPage(this.chatRoomId, Key? key) : super(key: key);
 
   @override
   String? get tag => chatRoomId;
@@ -27,42 +28,47 @@ class ChatPage extends GetResponsiveView<ChatController> {
           elevation: 6,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
           color: backgroundColor,
-          child: Row(
-            children: [
-              Expanded(
-                child: ListTile(
-                  title: Row(
-                    children: [
-                      Icon(
-                        Icons.lock,
-                        size: 20,
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            child: Row(
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      Icons.lock,
+                      size: 20,
+                    ),
+                    Text(
+                      "Channel Name",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
                       ),
-                      Text(
-                        "Channel Name",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12,
-                        ),
-                      )
-                    ],
-                  ),
+                    )
+                  ],
                 ),
-              ),
-              Expanded(child: SizedBox.shrink(), flex: 4),
-              Expanded(
-                  child: Row(
-                children: [
-                  Obx(() => controller.chatRoom.value != null
-                      ? ChatRoomMembersWithPicAndCount(
-                          chatRoom: controller.chatRoom.value!)
-                      : SizedBox.shrink()),
-                  IconButton(
-                    onPressed: () {},
-                    icon: Icon(Icons.person_add),
-                  )
-                ],
-              ))
-            ],
+                Expanded(child: SizedBox.shrink()),
+                Row(
+                  children: [
+                    Obx(() => controller.chatRoom.value != null
+                        ? ChatRoomMembersWithPicAndCount(
+                            chatRoom: controller.chatRoom.value!,
+                            showCount:
+                                controller.chatRoom.value!.members.length > 2)
+                        : SizedBox.shrink()),
+                    Obx(
+                      () => controller.chatRoom.value!.chatRoomType ==
+                              ChatRoomType.channel
+                          ? IconButton(
+                              onPressed: () {},
+                              icon: Icon(Icons.person_add),
+                            )
+                          : SizedBox.shrink(),
+                    )
+                  ],
+                )
+              ],
+            ),
           ),
         ),
         Expanded(
@@ -124,49 +130,74 @@ class ChatPage extends GetResponsiveView<ChatController> {
 
 class ChatRoomMembersWithPicAndCount extends StatelessWidget {
   final ChatRoom chatRoom;
+  final bool showCount;
 
-  const ChatRoomMembersWithPicAndCount({Key? key, required this.chatRoom})
+  const ChatRoomMembersWithPicAndCount(
+      {Key? key, required this.chatRoom, this.showCount = true})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    int count = (chatRoom.members.length > 3 ? 3 : chatRoom.members.length);
+    Get.log("MEM>>${chatRoom.members.length}");
     return Row(
       children: [
-        SizedBox(
-            child: Stack(
-              children: List.generate(
-                  count,
-                  (index) => Positioned(
-                      child: UserPic(
-                        height: 28,
-                        width: 28,
-                        radius: 5,
-                        borderWidth: 2,
-                        borderColor: backgroundColor,
-                        url: chatRoom.members[index].pic,
-                      ),
-                      top: 0,
-                      left: index * 18)),
-            ),
-            width: 75,
-            height: 30),
-        Container(
-          height: 28,
-          width: 28,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.white),
-            borderRadius: BorderRadius.circular(5),
-          ),
-          child: Text(
-            "${chatRoom.members.length}",
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
-          ),
-        )
+        ChatRoomMembersWithPic(chatRoom: chatRoom),
+        showCount
+            ? Container(
+                height: 28,
+                width: 28,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.white),
+                  borderRadius: BorderRadius.circular(5),
+                ),
+                child: Text(
+                  "${chatRoom.members.length}",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                ),
+              )
+            : SizedBox.shrink()
       ],
     );
+  }
+}
+
+class ChatRoomMembersWithPic extends StatelessWidget {
+  final ChatRoom chatRoom;
+  final bool showCurrentUserPic;
+
+  const ChatRoomMembersWithPic(
+      {Key? key, required this.chatRoom, this.showCurrentUserPic = true})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    if (!showCurrentUserPic) {
+      final homeController = Get.find<HomeController>();
+      chatRoom.members.removeWhere((element) =>
+          homeController.currentUser.value?.id == element.senderId);
+    }
+    int count = (chatRoom.members.length > 3 ? 3 : chatRoom.members.length);
+    return SizedBox(
+        child: Stack(
+          alignment: Alignment.center,
+          children: List.generate(
+              count,
+              (index) => Positioned(
+                  child: UserPic(
+                    height: 28,
+                    width: 28,
+                    radius: 5,
+                    borderWidth: 2,
+                    borderColor: backgroundColor,
+                    url: chatRoom.members[index].pic,
+                  ),
+                  top: 0,
+                  left: index * 18)),
+        ),
+        width: 75,
+        height: 30);
   }
 }
 

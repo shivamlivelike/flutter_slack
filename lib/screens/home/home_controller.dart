@@ -9,6 +9,7 @@ class HomeController extends GetxController {
   final users = <SlackUser>[].obs;
   final selectedChatRoom = Rx<ChatRoom?>(null);
   final currentUser = Rx<SlackUser?>(null);
+  final channelChatRoom = <ChatRoom>[].obs;
 
   @override
   void onInit() async {
@@ -35,25 +36,37 @@ class HomeController extends GetxController {
       final date = faker.date.dateTime();
       final type = faker.randomGenerator.element(ChatRoomType.values);
       final members = <SenderUser>[];
+      members.add(currentUser.value!.toSenderUser());
       switch (type) {
         case ChatRoomType.channel:
-          break;
-        case ChatRoomType.direct:
-          members.addAll(users
+          members.addAll((users..shuffle())
               .take(faker.randomGenerator.integer(10, min: 2))
               .map((e) => e.toSenderUser())
+              .toSet()
               .toList());
+          break;
+        case ChatRoomType.direct:
+          if (faker.randomGenerator.boolean()) {
+            members.add(faker.randomGenerator.element(
+                (users..shuffle()).map((e) => e.toSenderUser()).toList()));
+          } else {
+            members.addAll((users..shuffle())
+                .take(faker.randomGenerator.integer(10, min: 2))
+                .map((e) => e.toSenderUser())
+                .toSet()
+                .toList());
+          }
           break;
       }
       return ChatRoom(faker.guid.guid(), faker.lorem.word(),
           faker.randomGenerator.boolean(), members, type, date, date);
     });
+    channelChatRoom.addAll(chatRooms
+        .where((element) => element.chatRoomType == ChatRoomType.channel)
+        .toList());
     directMessageChatRoom.addAll(chatRooms
         .where((element) => element.chatRoomType == ChatRoomType.direct)
         .toList());
-    // directMessageChatRoom.forEach((chatRoom) {
-    //   Get.put(ChatController(chatRoom), tag: chatRoom.id);
-    // });
   }
 
   void changeChatRoom(ChatRoom chatRoom) {
@@ -64,6 +77,8 @@ class HomeController extends GetxController {
       Get.log("New Controller");
       Get.put(ChatController(chatRoom), tag: chatRoom.id);
     }
+    bool refresh = selectedChatRoom.value != null;
     selectedChatRoom.value = chatRoom;
+    if (refresh) selectedChatRoom.refresh();
   }
 }

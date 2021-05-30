@@ -28,6 +28,6 @@ extension DateOnlyCompare on DateTime {
     if (this.isYesterdayDateOf(DateTime.now())) {
       return "Yesterday";
     }
-    return formatDate(this, [DD, ',', MM, ' ', dd]);
+    return formatDate(this, [DD, ',', MM, ' ', dd, ' ', yyyy]);
   }
 }

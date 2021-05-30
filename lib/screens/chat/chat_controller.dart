@@ -18,13 +18,13 @@ class ChatController extends GetxController {
 
   void loadData() async {
     Get.log("load data");
-    await Future.delayed(const Duration(seconds: 1));
-    DateTime dateTime = faker.date.dateTime();
+    await Future.delayed(const Duration(milliseconds: 300));
+    DateTime dateTime = faker.date.dateTime(maxYear: 2021, minYear: 2019);
 
     final list =
         List.generate(faker.randomGenerator.integer(100, min: 5), (index) {
       if (faker.randomGenerator.boolean()) {
-        dateTime = faker.date.dateTime();
+        dateTime = faker.date.dateTime(maxYear: 2021, minYear: 2019);
       }
       return Chat(
           faker.guid.guid(),
@@ -33,7 +33,7 @@ class ChatController extends GetxController {
           dateTime,
           dateTime);
     })
-          ..sort((c1, c2) => c1.updated.compareTo(c2.updated));
+          ..sort((c1, c2) => c2.updated.compareTo(c1.updated));
 
     chats.addAll(list);
     refreshController.loadComplete();
@@ -44,7 +44,7 @@ class ChatController extends GetxController {
   @override
   void onReady() async {
     super.onReady();
-    await Future.delayed(const Duration(seconds: 1));
+    await Future.delayed(const Duration(milliseconds: 300));
     Get.log("request loading");
     refreshController.requestLoading();
     // print("Ready> ${chatRoom.value?.title}");

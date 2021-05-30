@@ -38,10 +38,11 @@ class HomePage extends GetResponsiveView<HomeController> {
               ? Expanded(child: AppDrawer(controller: controller), flex: 1)
               : SizedBox.shrink(),
           Expanded(
-            flex: 5,
+            flex: 4,
             child: Obx(
               () => controller.selectedChatRoom.value?.id != null
-                  ? ChatPage(controller.selectedChatRoom.value!.id)
+                  ? ChatPage(controller.selectedChatRoom.value!.id,
+                      Key(controller.selectedChatRoom.value!.id))
                   : Center(
                       child: Text("Select ChatRoom"),
                     ),
@@ -151,10 +152,22 @@ class AppDrawer extends StatelessWidget {
         children: [
           Obx(() => ExpansionTile(
                 initiallyExpanded: true,
-                title: Text(
-                    "Direct Messages(${controller.directMessageChatRoom.length})"),
-                children: controller.directMessageChatRoom
-                    .map((element) => ListTile(
+                collapsedTextColor: Colors.white,
+                textColor: Colors.white,
+                iconColor: Colors.white,
+                collapsedIconColor: Colors.white,
+                trailing: IconButton(onPressed: () {}, icon: Icon(Icons.add)),
+                title: Text("Channels(${controller.channelChatRoom.length})"),
+                children: controller.channelChatRoom
+                    .map(
+                      (element) => Container(
+                        color:
+                            controller.selectedChatRoom.value?.id == element.id
+                                ? accentColor
+                                : backgroundColor,
+                        child: ListTile(
+                          contentPadding:
+                              EdgeInsets.symmetric(horizontal: 10, vertical: 0),
                           selected:
                               controller.selectedChatRoom.value == element,
                           selectedTileColor: Colors.blue,
@@ -162,9 +175,47 @@ class AppDrawer extends StatelessWidget {
                             element.title,
                             style: TextStyle(color: Colors.white),
                           ),
+                          leading: ChatRoomMembersWithPic(
+                              chatRoom: element, showCurrentUserPic: false),
                           onTap: () {
                             controller.changeChatRoom(element);
                           },
+                        ),
+                      ),
+                    )
+                    .toList(),
+              )),
+          Obx(() => ExpansionTile(
+                initiallyExpanded: true,
+                collapsedTextColor: Colors.white,
+                textColor: Colors.white,
+                iconColor: Colors.white,
+                collapsedIconColor: Colors.white,
+                title: Text(
+                    "Direct Messages(${controller.directMessageChatRoom.length})"),
+                trailing: IconButton(onPressed: () {}, icon: Icon(Icons.add)),
+                children: controller.directMessageChatRoom
+                    .map((element) => Container(
+                          child: ListTile(
+                            contentPadding: EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 0),
+                            selected:
+                                controller.selectedChatRoom.value == element,
+                            selectedTileColor: Colors.blue,
+                            title: Text(
+                              element.title,
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            leading: ChatRoomMembersWithPic(
+                                chatRoom: element, showCurrentUserPic: false),
+                            onTap: () {
+                              controller.changeChatRoom(element);
+                            },
+                          ),
+                          color: controller.selectedChatRoom.value?.id ==
+                                  element.id
+                              ? accentColor
+                              : backgroundColor,
                         ))
                     .toList(),
               ))
