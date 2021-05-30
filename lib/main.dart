@@ -8,6 +8,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'screens/home/home_page.dart';
 
 void main() {
+  Get.isLogEnable = true;
   runApp(MyApp());
 }
 

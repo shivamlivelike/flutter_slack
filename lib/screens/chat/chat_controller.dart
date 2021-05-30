@@ -9,19 +9,20 @@ class ChatController extends GetxController {
   final chatRoom = Rx<ChatRoom?>(null);
   final chats = <Chat>[].obs;
   final refreshController = RefreshController(initialRefresh: false);
-
   final scrollController = ScrollController();
+  int lastIndexRead = -1;
 
   ChatController(ChatRoom chatRoom) {
     this.chatRoom.value = chatRoom;
   }
 
-  @override
-  void onInit() {
-    super.onInit();
+  void loadData() async {
+    Get.log("load data");
+    await Future.delayed(const Duration(seconds: 1));
     DateTime dateTime = faker.date.dateTime();
-    chats.addAll(
-        List.generate(faker.randomGenerator.integer(200, min: 50), (index) {
+
+    final list =
+        List.generate(faker.randomGenerator.integer(100, min: 5), (index) {
       if (faker.randomGenerator.boolean()) {
         dateTime = faker.date.dateTime();
       }
@@ -32,14 +33,22 @@ class ChatController extends GetxController {
           dateTime,
           dateTime);
     })
-          ..sort((c1, c2) => c1.updated.compareTo(c2.updated)));
+          ..sort((c1, c2) => c1.updated.compareTo(c2.updated));
+
+    chats.addAll(list);
+    refreshController.loadComplete();
+
+    Get.log("Data Loaded ${chats.length} , ${list.length}");
   }
 
   @override
-  void onReady() {
+  void onReady() async {
     super.onReady();
-    print("Ready> ${chatRoom.value?.title}");
-    scrollController.animateTo(scrollController.position.maxScrollExtent,
-        duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+    await Future.delayed(const Duration(seconds: 1));
+    Get.log("request loading");
+    refreshController.requestLoading();
+    // print("Ready> ${chatRoom.value?.title}");
+    // scrollController.animateTo(scrollController.position.maxScrollExtent,
+    //     duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
   }
 }

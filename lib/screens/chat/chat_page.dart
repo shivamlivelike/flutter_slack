@@ -66,33 +66,39 @@ class ChatPage extends GetResponsiveView<ChatController> {
           ),
         ),
         Expanded(
-          child: SmartRefresher(
-            controller: controller.refreshController,
-            child: ListView.separated(
-              controller: controller.scrollController,
-              itemBuilder: (context, index) {
-                return ChatView(chat: controller.chats[index]);
-              },
-              separatorBuilder: (context, index) => (index == 0 ||
-                      !(controller.chats[index - 1].updated
-                          .isSameDate(controller.chats[index].updated)))
-                  ? Center(
-                      child: Container(
-                        margin: EdgeInsets.symmetric(vertical: 20),
-                        child: Text(
-                            "${controller.chats[index].updated.showDateOnly()}"),
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 15, vertical: 7),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(25),
-                          border: Border.all(color: Colors.white60),
-                        ),
-                      ),
-                    )
-                  : Divider(),
-              itemCount: controller.chats.length,
-            ),
-          ),
+          child: Obx(() => SmartRefresher(
+                controller: controller.refreshController,
+                reverse: true,
+                onLoading: () {
+                  controller.loadData();
+                },
+                enablePullDown: false,
+                enablePullUp: true,
+                child: ListView.separated(
+                  controller: controller.scrollController,
+                  itemBuilder: (context, index) {
+                    return ChatView(chat: controller.chats[index]);
+                  },
+                  separatorBuilder: (context, index) => (index == 0 ||
+                          !(controller.chats[index - 1].updated
+                              .isSameDate(controller.chats[index].updated)))
+                      ? Center(
+                          child: Container(
+                            margin: EdgeInsets.symmetric(vertical: 20),
+                            child: Text(
+                                "${controller.chats[index].updated.showDateOnly()}"),
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 15, vertical: 7),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(25),
+                              border: Border.all(color: Colors.white60),
+                            ),
+                          ),
+                        )
+                      : Divider(),
+                  itemCount: controller.chats.length,
+                ),
+              )),
         ),
         Container(
           margin: EdgeInsets.all(10),

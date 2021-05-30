@@ -59,7 +59,9 @@ class HomeController extends GetxController {
   void changeChatRoom(ChatRoom chatRoom) {
     try {
       Get.find<ChatController>(tag: chatRoom.id);
+      Get.log("Find Controller");
     } catch (e) {
+      Get.log("New Controller");
       Get.put(ChatController(chatRoom), tag: chatRoom.id);
     }
     selectedChatRoom.value = chatRoom;
