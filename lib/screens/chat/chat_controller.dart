@@ -11,6 +11,8 @@ class ChatController extends GetxController {
   final refreshController = RefreshController(initialRefresh: false);
   final scrollController = ScrollController();
   int lastIndexRead = -1;
+  final showEmojis = false.obs;
+  final messageController=TextEditingController();
 
   ChatController(ChatRoom chatRoom) {
     this.chatRoom.value = chatRoom;
